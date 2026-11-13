@@ -1,0 +1,58 @@
+<style>
+.w{--k:#D97757;padding:.75rem 0;color:var(--text-primary);font-size:13px;line-height:1.6}
+.t{display:flex;align-items:baseline;gap:10px;border-bottom:1.5px solid var(--k);padding-bottom:8px}
+.tt,.h{font-family:var(--font-voice);font-size:22px}
+.h{font-size:16px;margin:18px 0 8px;display:flex;align-items:baseline;gap:8px}
+.p{display:inline-block;padding:1px 9px;border-radius:10px;font-size:12px}
+.v{margin-left:auto;padding:2px 10px;border-radius:11px;flex:none}
+.g{color:var(--text-success)}.y{color:var(--text-warning)}.d{color:var(--text-danger)}
+.b.g{background:var(--bg-success)}.b.y{background:var(--bg-warning)}.b.d{background:var(--bg-danger)}
+.mn{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin:12px 0 4px}
+.ce{background:var(--surface-1);border:.5px solid var(--border);border-radius:8px;padding:8px 10px;line-height:1.5}
+.cl,.no,.hs,.n,.x{color:var(--text-muted)}
+.cl,.no,.ft{font-size:11px;flex:none}
+.cl{display:block;margin-bottom:2px}
+.e{margin:12px 0 0;line-height:1.7}
+.hs{font-family:var(--font-sans);font-size:12px}
+.f{border:.5px solid var(--border);border-radius:8px;overflow:hidden;margin:0 0 10px}
+.fh,.dc{display:flex;align-items:center;gap:8px;padding:5px 12px;background:var(--surface-1);flex-wrap:wrap}
+.ft{padding:1px 8px;border-radius:10px;background:var(--bg-accent);color:var(--text-accent)}
+.fn,.r{font-family:var(--font-mono);font-size:12px}
+.wh{padding:6px 12px;color:var(--text-secondary)}
+.r{display:grid;grid-template-columns:38px 14px 1fr;white-space:pre;padding-right:8px}
+.n{text-align:right;padding-right:6px}.c{overflow:hidden;text-overflow:ellipsis}
+details{border-top:.5px solid var(--border)}
+summary{cursor:pointer;font-size:12px;color:var(--text-accent);padding:6px 12px;list-style:none}
+summary::before{content:"▸ "}details[open] summary::before{content:"▾ "}
+.k{padding:0 12px 10px}
+.tp{display:block;margin-top:6px;font-size:12px;color:var(--text-secondary);padding-left:10px;border-left:2px solid var(--k)}
+b{font-weight:500}
+.dc{margin-top:14px;padding:10px 12px;border-left:3px solid var(--k);font-size:14px}
+.dc>div{flex:1 1 300px}
+.qs{margin-left:auto;display:flex;gap:6px;flex:none}
+.q,.o{all:unset;cursor:pointer;border-radius:6px}
+.q{width:24px;line-height:24px;text-align:center;font-size:16px;color:var(--text-muted)}
+.q:hover{background:var(--surface-2);color:var(--text-primary)}.q.dr:hover{color:var(--text-danger)}
+.o{font-size:12px;padding:3px 10px;border:.5px solid var(--border-strong)}
+.o.s{background:var(--text-primary);color:var(--surface-2)}
+.ev{border:0;margin-top:6px}.ev summary,.ev .k{padding-left:0}.ev .k{font-size:12px;color:var(--text-secondary)}
+</style>
+<div class="w">
+<h2 class="sr-only">{{SR_SUMMARY}}</h2>
+<div class="t"><span class="tt">{{TITLE}}</span><span class="p v b {{g|y|d}}">{{VERDICT}}</span></div>
+<div class="mn">
+<div class="ce"><span class="cl">{{L_WHAT}}</span>{{WHAT}}</div>
+<div class="ce"><span class="cl">{{L_EVIDENCE}}</span><span class="g">{{EVIDENCE}}</span></div>
+<div class="ce"><span class="cl">{{L_RISK}}</span><span class="y">{{RISK}}</span></div>
+</div>
+<div class="e"><b>{{L_EXAMPLE}}:</b> {{ACTION}} → <span class="d">{{GAVE}}</span>, {{L_SHOULD_BE}}: <span class="g">{{EXPECTED}}</span>.</div>
+<div class="h">{{L_READ_ORDER}} <span class="hs">{{N}} {{L_FILES}}</span></div>
+<div class="f"><div class="fh"><span class="no">{{NO}}</span><span class="ft">{{TYPE}}</span><span class="fn">{{FILE}}</span><span class="hs">{{FUNC}}</span><span class="qs"><button class="q" title="{{L_EXPLAIN}}" onclick="q('explain',this)"><i class="ti ti-help-circle"></i></button><button class="q" title="{{L_WITHOUT}}" onclick="q('can I ship without',this)"><i class="ti ti-git-branch"></i></button><button class="q dr" title="{{L_DROP}}" onclick="q('drop',this)"><i class="ti ti-x"></i></button></span></div>
+<div class="wh">{{NOW_DOES}}</div>
+<div class="r {{x|b d|b g}}"><span class="n">{{LN}}</span><span>{{SIGN}}</span><span class="c">{{LINE}}</span></div>
+<details><summary>{{L_WHY}}</summary><div class="k">{{WHY}}<span class="tp"><b>{{LANG}}:</b> {{TIP}}</span></div></details></div>
+<div class="dc"><div><b>{{L_PUSH}}?</b> {{DECISION}} <span class="p b y">{{MIN}}</span> {{STEPS}}</div><span class="qs"><button class="o" onclick="q('make it green')">{{L_GREEN}}</button><button class="o s" onclick="q('ship it')">{{L_SHIP}}</button></span></div>
+<details class="ev"><summary>{{L_DETAIL}}</summary><div class="k">{{EVIDENCE_LINES}}<br>{{RISK_PILLS}} · {{NOT_IN_COMMIT}}</div></details>
+</div>
+<script>function q(a,b){var c=b&&b.closest('.f'),t=function(s){return c.querySelector(s).textContent};sendPrompt('agentcheck: '+a+(c?' card '+t('.no')+' ('+t('.fn')+', '+t('.hs')+')':''))}
+document.querySelectorAll('.q').forEach(function(b){b.setAttribute('aria-label',b.title)})</script>

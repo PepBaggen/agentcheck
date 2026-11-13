@@ -1,0 +1,11 @@
+{
+  "name": "agentcheck",
+  "displayName": "Agentcheck",
+  "version": "1.0.0",
+  "description": "Explains a bug fix or feature before you push it: one visual report with the change, the evidence, the open risk and a proof by revert.",
+  "author": {
+    "name": "Pepijn Baggen"
+  },
+  "license": "MIT",
+  "keywords": ["code-review", "bug-fix", "diff", "explain", "proof", "pre-push"]
+}

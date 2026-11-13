@@ -1,0 +1,14 @@
+{
+  "name": "agentcheck",
+  "description": "Agentcheck: a skill that makes a code change explainable and proven before you push it",
+  "owner": {
+    "name": "Pepijn Baggen"
+  },
+  "plugins": [
+    {
+      "name": "agentcheck",
+      "source": "./",
+      "description": "Explains a bug fix or feature before you push it: one visual report with the change, the evidence, the open risk and a proof by revert."
+    }
+  ]
+}
