@@ -2,7 +2,10 @@
 
 Know why a change works before you push it. One report, one minute, with proof.
 
-![Agentcheck report for a pagination bug fix](docs/screenshot-light.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshot-dark.png">
+  <img alt="Agentcheck report for a pagination bug fix" src="docs/screenshot-light.png">
+</picture>
 
 Agentcheck is a Claude Code skill for the moment between "the test is green" and
 `git push`. It works on any codebase and language, for bug fixes and features.
