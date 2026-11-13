@@ -37,14 +37,14 @@ Nothing is committed or pushed unless you approve it.
 As a plugin, in Claude Code:
 
 ```
-/plugin marketplace add <owner>/agentcheck
+/plugin marketplace add PepBaggen/agentcheck
 /plugin install agentcheck@agentcheck
 ```
 
 Or from your shell:
 
 ```bash
-claude plugin marketplace add <owner>/agentcheck
+claude plugin marketplace add PepBaggen/agentcheck
 claude plugin install agentcheck@agentcheck
 ```
 
@@ -55,7 +55,7 @@ by itself when you ask one of the questions below.
 <summary>Manual copy</summary>
 
 ```bash
-git clone https://github.com/<owner>/agentcheck.git
+git clone https://github.com/PepBaggen/agentcheck.git
 mkdir -p ~/.claude/skills
 cp -R agentcheck/skills/agentcheck ~/.claude/skills/
 ```
