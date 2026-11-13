@@ -105,8 +105,6 @@ one card. The report also works in dark mode, and
 [docs/example-report.html](docs/example-report.html) is the example above as a
 standalone page.
 
-![The same report in dark mode](docs/screenshot-dark.png)
-
 ## Follow-up buttons
 
 Each file card has three icon buttons, and the push block has two buttons. They
