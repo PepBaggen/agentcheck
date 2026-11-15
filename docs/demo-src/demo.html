@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Agentcheck demo (illustrative)</title>
+<!--
+  Scripted, illustrative demo of the agentcheck flow. Not a screen recording.
+  window.seek(t) renders the state at t seconds, window.DURATION is the length.
+  Open with #play to watch it in a browser, or #t=12.5 to inspect one moment.
+  The report markup and CSS are copied from docs/example-report.html.
+-->
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:960px;height:600px;overflow:hidden;background:#141413}
+body{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px;line-height:1.55;color:#e8e6dc;-webkit-font-smoothing:antialiased}
+.hid{display:none!important}
+#bar{height:38px;display:flex;align-items:center;gap:8px;padding:0 16px;background:#1f1e1d;border-bottom:1px solid #33322f}
+#bar i{width:11px;height:11px;border-radius:50%;background:#4a4945;display:block}
+#bar .nm{font-family:Georgia,"Times New Roman",serif;font-size:16px;margin-left:12px;color:#f0eee6}
+#bar .nm b{color:#D97757;font-weight:400;margin-right:6px}
+#bar .pt{margin-left:auto;color:#8a8880;font-size:12px}
+#view{position:absolute;top:38px;left:0;right:0;height:488px;overflow:hidden;background:#1a1918}
+#content{padding:16px 36px 16px}
+.msg{margin:0 0 14px}
+.u{background:#2b2a27;border-radius:8px;padding:7px 12px;color:#f0eee6;display:inline-block}
+.u::before{content:"> ";color:#8a8880}
+.dot{color:#D97757}
+.dot.gr{color:#7fb650}
+.sub{color:#9c9a92;padding-left:18px}
+.sub::before{content:"\23BF  ";color:#6b6962}
+.tx{padding-left:18px;text-indent:-18px}
+.df{margin:2px 0 0 18px;border-radius:6px;overflow:hidden;width:max-content;min-width:420px}
+.df div{padding:0 10px;white-space:pre}
+.df .m{background:#501313;color:#f09595}
+.df .a{background:#1d3a08;color:#a9d36f}
+.ok{color:#a9d36f}
+.cd{margin:6px 0 0 18px;background:#262624;border:1px solid #3d3d3a;border-radius:8px;padding:9px 14px;white-space:pre;width:max-content;color:#f0eee6}
+.cd .lb{display:block;color:#8a8880;font-size:11px;margin-bottom:3px}
+.cd .pr{color:#D97757}
+.cd .st{color:#a9d36f}
+#ask{border:1px solid #D97757;border-radius:8px;padding:10px 14px;width:430px}
+#ask .qt{font-family:Georgia,"Times New Roman",serif;font-size:17px;color:#f0eee6;margin-bottom:6px}
+#ask .op{padding:2px 8px;border-radius:5px;color:#c2c0b6;display:flex;gap:8px}
+#ask .op .ar{width:10px;color:transparent}
+#ask .op .ds{color:#8a8880;margin-left:auto;font-size:12px}
+#ask .op.on{background:#3a2a22;color:#f0eee6}
+#ask .op.on .ar{color:#D97757}
+#ask .op.dn{background:#D97757;color:#1a1918}
+#ask .op.dn .ar,#ask .op.dn .ds{color:#1a1918}
+#foot{position:absolute;left:0;right:0;bottom:0;height:74px;background:#1a1918;padding:0 36px}
+#stat{height:20px;color:#D97757;font-size:12.5px;line-height:20px}
+#stat span{color:#8a8880}
+#input{border:1px solid #4a4945;border-radius:8px;height:36px;line-height:34px;padding:0 12px;color:#f0eee6}
+#input .gt{color:#8a8880;margin-right:8px}
+#caret{display:inline-block;width:8px;height:16px;background:#c2c0b6;vertical-align:-3px;margin-left:1px}
+#input .sl{color:#D97757}
+#cursor{position:absolute;left:0;top:0;width:22px;height:22px;z-index:9;pointer-events:none}
+#ring{position:absolute;left:0;top:0;width:30px;height:30px;margin:-15px 0 0 -15px;border:2px solid #D97757;border-radius:50%;z-index:8}
+
+#rep{--text-primary:#f0eee6;--text-secondary:#c2c0b6;--text-muted:#9c9a92;--surface-0:#262624;--surface-1:#30302e;--surface-2:#3d3d3a;--border:rgba(240,238,230,.16);--border-strong:rgba(240,238,230,.32);--bg-success:#1d3a08;--text-success:#a9d36f;--bg-warning:#412402;--text-warning:#efa53a;--bg-danger:#501313;--text-danger:#f09595;--bg-accent:#0a3158;--text-accent:#85b7eb;--font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;--font-voice:Georgia,"Times New Roman",serif;--font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  background:var(--surface-0);border:1px solid #3d3d3a;border-radius:10px;padding:4px 16px 8px;font-family:var(--font-sans);margin:0 0 14px;zoom:1.22;width:727px}
+#rep code{font-family:var(--font-mono);font-size:.92em}
+#rep .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.w{--k:#D97757;padding:.75rem 0;color:var(--text-primary);font-size:13px;line-height:1.6}
+.t{display:flex;align-items:baseline;gap:10px;border-bottom:1.5px solid var(--k);padding-bottom:8px}
+.tt,.h{font-family:var(--font-voice);font-size:22px}
+.h{font-size:16px;margin:18px 0 8px;display:flex;align-items:baseline;gap:8px}
+.p{display:inline-block;padding:1px 9px;border-radius:10px;font-size:12px}
+.v{margin-left:auto;padding:2px 10px;border-radius:11px;flex:none}
+.g{color:var(--text-success)}.y{color:var(--text-warning)}.d{color:var(--text-danger)}
+.b.g{background:var(--bg-success)}.b.y{background:var(--bg-warning)}.b.d{background:var(--bg-danger)}
+.mn{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin:12px 0 4px}
+.ce{background:var(--surface-1);border:.5px solid var(--border);border-radius:8px;padding:8px 10px;line-height:1.5}
+.cl,.no,.hs,.n,.x{color:var(--text-muted)}
+.cl,.no,.ft{font-size:11px;flex:none}
+.cl{display:block;margin-bottom:2px}
+.e{margin:12px 0 0;line-height:1.7}
+.hs{font-family:var(--font-sans);font-size:12px}
+.f{border:.5px solid var(--border);border-radius:8px;overflow:hidden;margin:0 0 10px}
+.fh,.dc{display:flex;align-items:center;gap:8px;padding:5px 12px;background:var(--surface-1);flex-wrap:wrap}
+.ft{padding:1px 8px;border-radius:10px;background:var(--bg-accent);color:var(--text-accent)}
+.fn,.r{font-family:var(--font-mono);font-size:12px}
+.wh{padding:6px 12px;color:var(--text-secondary)}
+.r{display:grid;grid-template-columns:38px 14px 1fr;white-space:pre;padding-right:8px}
+.n{text-align:right;padding-right:6px}.c{overflow:hidden;text-overflow:ellipsis}
+#rep details{border-top:.5px solid var(--border)}
+#rep summary{cursor:pointer;font-size:12px;color:var(--text-accent);padding:6px 12px;list-style:none}
+#rep summary::-webkit-details-marker{display:none}
+#rep summary::before{content:"▸ "}#rep details[open] summary::before{content:"▾ "}
+#rep summary.hv{text-decoration:underline;color:#b3d4f5}
+.k{padding:0 12px 10px}
+.tp{display:block;margin-top:6px;font-size:12px;color:var(--text-secondary);padding-left:10px;border-left:2px solid var(--k)}
+#rep b{font-weight:500}
+.dc{margin-top:14px;padding:10px 12px;border-left:3px solid var(--k);font-size:14px}
+.dc>div{flex:1 1 300px}
+.qs{margin-left:auto;display:flex;gap:6px;flex:none}
+.q,.o{all:unset;cursor:pointer;border-radius:6px}
+.q{width:24px;height:24px;display:grid;place-items:center;color:var(--text-muted)}
+.q svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.o{font-size:12px;padding:3px 10px;border:.5px solid var(--border-strong)}
+.o.s{background:var(--text-primary);color:var(--surface-0)}
+.o.s.hv{background:#fff;box-shadow:0 0 0 2px rgba(217,119,87,.55)}
+.o.s.pr{background:#D97757;color:#fff;transform:scale(.93);box-shadow:0 0 0 2px rgba(217,119,87,.35)}
+.ev{border:0!important;margin-top:6px}.ev summary,.ev .k{padding-left:0!important}.ev .k{font-size:12px;color:var(--text-secondary)}
+</style></head><body>
+
+<div id="bar"><i></i><i></i><i></i><span class="nm"><b>&#10043;</b>Claude Code</span><span class="pt">~/projects/shop</span></div>
+
+<div id="view"><div id="content">
+
+<div class="msg" data-at="0.3"><span class="u">Orders page skips the first ten orders, fix it</span></div>
+
+<div class="msg" data-at="0.9"><div><span class="dot gr">&#9679;</span> Search(pattern: "per_page", path: "shop/")</div><div class="sub" data-at="1.2">Found 3 matches in 2 files</div></div>
+
+<div class="msg tx" data-at="1.6"><span class="dot">&#9679;</span> <span data-stream="1.6,70">Found it: an off-by-one in shop/pagination.py. Page 1 starts at offset 10 instead of 0.</span></div>
+
+<div class="msg" data-at="2.9"><div><span class="dot gr">&#9679;</span> Update(shop/pagination.py)</div><div class="df" data-at="3.1"><div class="m">5 -     start = page * per_page</div><div class="a">5 +     start = (page - 1) * per_page</div></div></div>
+
+<div class="msg" data-at="3.7"><div><span class="dot gr">&#9679;</span> Bash(python3 -m pytest tests/test_pagination.py -q)</div><div class="sub" data-at="4.2"><span class="ok">2 passed</span> in 0.04s</div></div>
+
+<div class="msg tx" data-at="4.5"><span class="dot">&#9679;</span> <span data-stream="4.5,70">Fixed. Page 1 now starts at the first order and the tests pass (2 passed).</span></div>
+
+<div class="msg" data-at="7.9"><span class="u">/agentcheck</span></div>
+
+<div class="msg" data-at="8.2"><div><span class="dot gr">&#9679;</span> Skill(agentcheck)</div><div class="sub" data-at="8.6">Proof by revert: passes with the change, fails without it</div></div>
+
+<div id="rep" data-at="9.0">
+<div class="w">
+<h2 class="sr-only">Push, low risk: the pagination fix is proven by revert and one caller is unchecked.</h2>
+<div class="t"><span class="tt">Order list skips the first ten orders</span><span class="p v b g">Push · low risk</span></div>
+<div class="mn">
+<div class="ce"><span class="cl">What</span>Page numbers are now treated as 1-based and a partly filled last page is counted.</div>
+<div class="ce"><span class="cl">Evidence</span><span class="g">ran: tests pass with the change and fail without it (11 != 1, 2 != 3)</span></div>
+<div class="ce"><span class="cl">Open risk</span><span class="y">read: export_orders also calls paginate and has no test · 5 min</span></div>
+</div>
+<div class="e"><b>Example:</b> Open the order list on page 1 → <span class="d">orders 11 to 20</span>, should be: <span class="g">orders 1 to 10</span>.</div>
+<div class="h">Read in this order <span class="hs">3 files</span></div>
+<div class="f"><div class="fh"><span class="no">1</span><span class="ft">service</span><span class="fn">shop/pagination.py</span><span class="hs">page_bounds</span><span class="qs"><button class="q" data-i="help"></button><button class="q" data-i="branch"></button><button class="q dr" data-i="x"></button></span></div>
+<div class="wh">Page 1 now starts at the first item instead of the eleventh.</div>
+<div class="r x"><span class="n">4</span><span></span><span class="c">def page_bounds(page, per_page):</span></div>
+<div class="r b d"><span class="n">5</span><span>-</span><span class="c">    start = page * per_page</span></div>
+<div class="r b g"><span class="n">5</span><span>+</span><span class="c">    start = (page - 1) * per_page</span></div>
+<div class="r x"><span class="n">6</span><span></span><span class="c">    return start, start + per_page</span></div>
+<details id="why1"><summary>Why this works</summary><div class="k"><code>list_orders</code> (shop/api.py:8) calls <code>paginate</code>, which slices with these bounds (shop/pagination.py:10). Pages are 1-based, so page 1 has to map to offset 0. The old line gave offset 10 and skipped the first ten orders.<span class="tp"><b>Python:</b> a slice that runs past the end returns fewer items instead of raising, so the bug never crashed.</span></div></details></div>
+<div class="f"><div class="fh"><span class="no">2</span><span class="ft">service</span><span class="fn">shop/pagination.py</span><span class="hs">total_pages</span><span class="qs"><button class="q" data-i="help"></button><button class="q" data-i="branch"></button><button class="q dr" data-i="x"></button></span></div>
+<div class="wh">A last page that is only partly filled is now counted.</div>
+<div class="r x"><span class="n">14</span><span></span><span class="c">def total_pages(count, per_page=10):</span></div>
+<div class="r b d"><span class="n">15</span><span>-</span><span class="c">    return count // per_page</span></div>
+<div class="r b g"><span class="n">15</span><span>+</span><span class="c">    return -(-count // per_page)</span></div>
+<details><summary>Why this works</summary><div class="k"><code>list_orders</code> (shop/api.py:10) returns this as <code>pages</code>. 25 orders with 10 per page gave 2, so the client never asked for page 3. Negating before and after floor division rounds up.</div></details></div>
+<div class="f"><div class="fh"><span class="no">3</span><span class="ft">test</span><span class="fn">tests/test_pagination.py</span><span class="hs">ListOrdersTest</span><span class="qs"><button class="q" data-i="help"></button><button class="q" data-i="branch"></button><button class="q dr" data-i="x"></button></span></div>
+<div class="wh">Two new tests pin the first item of page 1 and the size of the last page.</div>
+<div class="r b g"><span class="n">10</span><span>+</span><span class="c">    def test_first_page_starts_at_first_order(self):</span></div>
+<div class="r b g"><span class="n">11</span><span>+</span><span class="c">        self.assertEqual(list_orders(page=1)[&quot;items&quot;][0][&quot;id&quot;], 1)</span></div>
+<div class="r b g"><span class="n">13</span><span>+</span><span class="c">    def test_last_partial_page_is_counted(self):</span></div>
+<div class="r b g"><span class="n">14</span><span>+</span><span class="c">        self.assertEqual(list_orders(page=3)[&quot;pages&quot;], 3)</span></div>
+<div class="r b g"><span class="n">15</span><span>+</span><span class="c">        self.assertEqual(len(list_orders(page=3)[&quot;items&quot;]), 5)</span></div>
+<details><summary>Why this works</summary><div class="k">Both tests go through <code>list_orders</code> (shop/api.py:6), the same entry point the endpoint uses.</div></details></div>
+<div class="dc" id="push"><div><b>Push?</b> Yes. You accept that the CSV export is unchecked. Worst case: the export starts one page earlier than before, which is the correct page. <span class="p b y">5 min</span> Run the export once for page 1 and check that the first row is order 1.</div><span class="qs"><button class="o">Make green</button><button class="o s" id="ship">Ship it</button></span></div>
+<details class="ev"><summary>Evidence and risk in detail</summary><div class="k"></div></details>
+</div>
+</div>
+
+<div class="msg" data-at="20.1"><span class="u">agentcheck: ship it</span></div>
+
+<div class="msg tx" data-at="20.6"><span class="dot">&#9679;</span> <span data-stream="20.6,80">This would commit shop/pagination.py and tests/test_pagination.py.</span></div>
+
+<div class="msg" id="ask" data-at="21.3" data-until="23.1">
+<div class="qt">Ship this change?</div>
+<div class="op" id="op1"><span class="ar">&#10095;</span>1. Approve<span class="ds">follow your ship preference</span></div>
+<div class="op" id="op2"><span class="ar">&#10095;</span>2. Decline<span class="ds">say what should change</span></div>
+<div class="op" id="op3"><span class="ar">&#10095;</span>3. Leave as is<span class="ds">do nothing</span></div>
+</div>
+
+<div class="msg" data-at="23.1"><div><span class="dot gr">&#9679;</span> Ship this change?</div><div class="sub">Approve</div></div>
+
+<div class="msg" data-at="23.5"><div class="tx"><span class="dot">&#9679;</span> <span data-stream="23.5,80">Approved. Run these to ship it:</span></div>
+<div class="cd" data-at="24.1"><span class="lb">bash</span><span class="pr">$</span> git add shop/pagination.py tests/test_pagination.py &amp;&amp; \
+    git commit -m <span class="st">"fix(pagination): start page 1 at the first order"</span><span data-at="24.6">
+<span class="pr">$</span> git push</span></div></div>
+
+</div></div>
+
+<div id="foot">
+<div id="stat"></div>
+<div id="input"><span class="gt">&gt;</span><span id="typed"></span><span id="caret"></span></div>
+</div>
+
+<div id="ring" class="hid"></div>
+<svg id="cursor" class="hid" viewBox="0 0 22 22"><path d="M3 2l0 15.5 4.3-3.9 2.8 6.3 2.7-1.2-2.8-6.2 5.9-.3z" fill="#fff" stroke="#141413" stroke-width="1.3" stroke-linejoin="round"/></svg>
+
+<script>
+var DURATION = 27;
+var VIEW_H = 488;
+var ICONS = {
+  help: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 17v.01M12 13.5a1.5 1.5 0 0 1 1-1.5 2.6 2.6 0 1 0-3-4"/></svg>',
+  branch: '<svg viewBox="0 0 24 24"><circle cx="7" cy="18" r="2"/><circle cx="7" cy="6" r="2"/><circle cx="17" cy="6" r="2"/><path d="M7 8v8M9 18h6a2 2 0 0 0 2-2V8"/></svg>',
+  x: '<svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>'
+};
+var $ = function (s) { return document.querySelector(s); };
+var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
+
+$$('.q').forEach(function (b) { b.innerHTML = ICONS[b.dataset.i]; });
+$$('#rep .w > div, #rep .w > details').forEach(function (el, i) { el.dataset.at = (9.0 + i * 0.25).toFixed(2); });
+$$('[data-stream]').forEach(function (el) { el.dataset.full = el.textContent; });
+
+var TYPED = '/agentcheck', TYPE_START = 5.9, TYPE_STEP = 0.14, SEND = 7.9;
+var STATUS = [[0.5, 4.5, 'Working'], [8.0, 11.3, 'Checking'], [20.3, 21.3, 'Working'], [23.1, 24.6, 'Working']];
+var SCROLL = [[0, 'bottom'], [8.9, 'bottom'], [9.4, 'report'], [11.7, 'report'], [13.1, 'cards'], [15.9, 'cards'], [17.3, 'push'], [20.0, 'push'], [20.5, 'bottom'], [DURATION, 'bottom']];
+var CURSOR = [[12.3, [820, 470]], [13.6, '#why1 summary'], [15.8, '#why1 summary'], [16.8, [800, 300]], [17.5, [800, 300]], [18.9, '#ship'], [20.0, '#ship'], [20.6, [640, 330]], [21.6, [640, 330]], [22.4, '#op1'], [23.0, '#op1'], [23.6, [700, 470]], [DURATION, [700, 470]]];
+var CLICKS = [13.8, 19.5, 22.7];
+
+function ease(x) { x = Math.max(0, Math.min(1, x)); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
+function between(t, a, b) { return t >= a && t < b; }
+
+function anchor(name) {
+  var c = $('#content').getBoundingClientRect();
+  var top = function (s) { return $(s).getBoundingClientRect().top - c.top; };
+  var bottom = Math.max(0, c.height - VIEW_H);
+  if (name === 'report') return top('#rep') - 10;
+  if (name === 'cards') return top('#rep .f') - 16;
+  if (name === 'push') return $('#rep').getBoundingClientRect().bottom - c.top - VIEW_H + 12;
+  return bottom;
+}
+function track(keys, t, value) {
+  var i = 0;
+  while (i < keys.length - 2 && t >= keys[i + 1][0]) i++;
+  var a = keys[i], b = keys[i + 1];
+  return [value(a[1]), value(b[1]), ease((t - a[0]) / (b[0] - a[0]))];
+}
+function point(target) {
+  if (typeof target !== 'string') return target;
+  var r = $(target).getBoundingClientRect();
+  if (target === '#ship') return [r.left + r.width * .55, r.top + r.height * .6];
+  if (target === '#op1') return [r.left + 110, r.top + r.height * .6];
+  return [r.left + 64, r.top + r.height * .6];
+}
+
+function seek(t) {
+  t = Math.max(0, Math.min(DURATION, t));
+
+  $$('[data-at]').forEach(function (el) {
+    var until = el.dataset.until ? +el.dataset.until : Infinity;
+    el.classList.toggle('hid', !(t >= +el.dataset.at && t < until));
+  });
+  $$('[data-stream]').forEach(function (el) {
+    var p = el.dataset.stream.split(','), n = Math.floor((t - p[0]) * p[1]);
+    el.textContent = el.dataset.full.slice(0, Math.max(0, n));
+  });
+
+  var n = t < TYPE_START || t >= SEND ? 0 : Math.min(TYPED.length, Math.floor((t - TYPE_START) / TYPE_STEP) + 1);
+  $('#typed').textContent = TYPED.slice(0, n);
+  $('#typed').className = n ? 'sl' : '';
+  var typing = between(t, TYPE_START, TYPE_START + TYPED.length * TYPE_STEP + .2);
+  $('#caret').style.visibility = typing || Math.floor(t * 2) % 2 === 0 ? 'visible' : 'hidden';
+
+  var st = STATUS.filter(function (s) { return between(t, s[0], s[1]); })[0];
+  $('#stat').innerHTML = st ? '&#10043; ' + st[2] + '... <span>(esc to interrupt)</span>' : '';
+
+  $('#why1').open = between(t, 13.9, 15.7);
+  $('#why1 summary').classList.toggle('hv', between(t, 13.4, 15.9));
+  $('#ship').classList.toggle('hv', between(t, 18.8, 20.0));
+  $('#ship').classList.toggle('pr', between(t, 19.5, 19.8));
+  var sel = t < 22.2 ? 0 : 1;
+  ['#op1', '#op2', '#op3'].forEach(function (s, i) {
+    $(s).classList.toggle('on', i === 0 && !between(t, 22.7, 23.1));
+    $(s).classList.toggle('dn', i === 0 && sel === 1 && between(t, 22.7, 23.1));
+  });
+
+  var s = track(SCROLL, t, anchor);
+  var y = Math.round(s[0] + (s[1] - s[0]) * s[2]);
+  $('#content').style.transform = 'translateY(' + -y + 'px)';
+
+  var cur = $('#cursor'), ring = $('#ring');
+  var shown = t >= CURSOR[0][0];
+  cur.classList.toggle('hid', !shown);
+  var x = 0, yy = 0;
+  if (shown) {
+    var c = track(CURSOR, t, point);
+    x = c[0][0] + (c[1][0] - c[0][0]) * c[2];
+    yy = c[0][1] + (c[1][1] - c[0][1]) * c[2];
+    cur.style.transform = 'translate(' + Math.round(x) + 'px,' + Math.round(yy) + 'px)';
+    cur.style.opacity = Math.min(1, (t - CURSOR[0][0]) / .3);
+  }
+  var click = CLICKS.filter(function (c) { return between(t, c, c + .35); })[0];
+  ring.classList.toggle('hid', click === undefined);
+  if (click !== undefined) {
+    var k = (t - click) / .35;
+    ring.style.transform = 'translate(' + Math.round(x + 3) + 'px,' + Math.round(yy + 2) + 'px) scale(' + (.4 + k * .9) + ')';
+    ring.style.opacity = 1 - k;
+  }
+}
+window.seek = seek;
+
+// #op1 is hidden once the question collapses, so freeze the cursor point it leaves from.
+seek(22.9);
+CURSOR[10][1] = point('#op1');
+
+var m = /t=([\d.]+)/.exec(location.hash);
+seek(m ? +m[1] : 0);
+if (location.hash.indexOf('play') > 0) {
+  var t0 = performance.now();
+  (function loop() { seek(((performance.now() - t0) / 1000) % (DURATION + 1)); requestAnimationFrame(loop); })();
+}
+</script>
+</body></html>
